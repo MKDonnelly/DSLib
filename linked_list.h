@@ -6,32 +6,32 @@
 typedef struct node{
    int item;
    struct node *next;
-} llNode;
+} node_t;
 
 //When passed two struct node pointers, this creates a linked list
 //of the given size and returns the head and tail pointers.
-void createLL( struct node**, int);
+void create_ll( node_t**, int);
 
 //Deallocates the memory for the LL
-void deallocLL(struct node **);
+void dealloc_ll(node_t **);
 
 //Given a linked list, print it out
-void printLL(struct node **);
+void print_ll(node_t **);
 
 //Finds the given element in the linked list
-int findItemLL( struct node **, int );
+int find_item_ll( node_t **, int );
 
 //Sets the given item in the linked list
-int setItemLL(struct node **, int, int);
+int set_item_ll( node_t **, int, int);
 
-//Removes the element in the array
-void rmItemLL(struct node **, int);
+//Removes the node in the array
+void rm_node_ll( node_t **, int);
 
 //Adds the given element to the given index
-void addItemLL(struct node **, int, int);
+int add_node_ll( node_t **, int, int);
 
 //Gets the value at index
-int getItemLL(struct node**, int);
+int get_item_ll( node_t **, int);
 
 //Gets the size of the linked list
-int getSizeLL(struct node**);
+int get_size_ll( node_t **);
