@@ -1,6 +1,5 @@
-
-Modify linked list to use single pointers
-   instead of double pointers
 Create a double linked list
+Modify linked list to hold arbitrary
+   objects with void*
 Create a hash with separate chaining
 
