@@ -229,3 +229,14 @@ void *find_node_ll( void **list, void *element, int (*compare_function)(void *ea
     return 0;
 }
 
+void apply_op_ll( void **list, void (*operator_function)(void*)){
+
+   mem_t **head = (mem_t**)list;
+   mem_t *next = *head;
+
+   while( next != NULL ){
+      operator_function( (void*)next );
+      next = next->next;
+   }
+}
+
