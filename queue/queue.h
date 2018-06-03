@@ -1,9 +1,7 @@
-
 #pragma once
-#include <stdlib.h>
-#include <stdio.h>
-#include "linkedList.h"
+#include "../linked_list/generic_ll.h"
 
-void createQueue(struct node**);
-int getItemQueue( struct node** );
-void addItemQueue( struct node **,int);
+#define push_queue( queue, item )\
+        add_node_ll( queue, item, get_size_ll(queue))
+#define pop_queue( queue )\
+        rmi_node_ll( queue, 0 )

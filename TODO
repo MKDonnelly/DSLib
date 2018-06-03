@@ -1,9 +1,0 @@
-ALWAYS have data structure functions return a
-   value on error. Silent error is not allowed!
-Create a double linked list
-Modify linked list to hold arbitrary
-   objects with void*
-Use #define to get rid of (void**)&<var> on every 
-   abstract linked list call
-Create a hash with separate chaining
-

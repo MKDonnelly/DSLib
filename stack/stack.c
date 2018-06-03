@@ -3,26 +3,29 @@
 #include <string.h>
 #include "stack.h"
 
-struct item{
+typedef struct item{
     struct item *next;
     char c; 
-};
-typedef struct item item_t;
+}item_t;
+
+item_t *create_item(char c){
+   item_t *temp = malloc(sizeof(item_t));
+   temp->c = c;
+   return temp;
+}
 
 void main(){
-   item_t *stack;
-   char check[] = "()()()()()))))))";
+   item_t *stack = NULL;
+   char check[] = "()()()()()";
    int check_len = strlen(check);
    
    int valid_str = 1;
    for(int i = 0; i < check_len && valid_str; i++){
       if( check[i] == '(' ){
-         item_t *pushed_item = malloc(sizeof(item_t));
-         pushed_item->c = '(';
-         push_stack( stack, pushed_item );
+         push_stack( stack, create_item('('));
       }else if( check[i] == ')' ){
          item_t *poped = pop_stack( stack );
-         if( poped == NULL || poped->c != '(' ){
+         if( poped == NULL ){
             valid_str = 0;
             printf("FAILED on character %d\n", i);
             printf("%s\n", check);
@@ -41,5 +44,4 @@ void main(){
    }else if( valid_str ){
       printf("String is balanced!\n");
    }
-
 }

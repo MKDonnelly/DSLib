@@ -35,14 +35,27 @@ void print_level( tnode_t **root, int level ){
    }
 }
 
-void print_tree( tnode_t **root ){
-   int total_spaces = 10;
-   for(int i = 0; i < 3; i++){
-      for(int j = 0; j < total_spaces; j++)
-         printf(" ");
-      print_level(root, i);
-      total_spaces -= 2;
-      printf("\n");
+void preorder(tnode_t *tree){
+   if( tree != NULL ){
+      printf("%d\n", tree->val);
+      preorder( tree->left );
+      preorder( tree->right );
+   }
+}
+
+void inorder(tnode_t *tree){
+   if( tree != NULL ){
+      inorder( tree->left );
+      printf("%d\n", tree->val);
+      inorder( tree->right );
+   }
+}
+
+void postorder(tnode_t *tree){
+   if( tree != NULL ){
+      postorder( tree->left );
+      postorder( tree->right );
+      printf("%d\n", tree->val);
    }
 }
 
@@ -53,5 +66,5 @@ void main(){
    insert_node( &root, make_node(10) );
    insert_node( &root, make_node(2) );
 
-   print_level( &root, 1 );
+   inorder(root);
 }

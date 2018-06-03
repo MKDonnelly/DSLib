@@ -1,17 +1,30 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "linkedList.h"
+#include "queue.h"
 
-void createQueue(struct node **head){
-   createLL( head, 0 );
+typedef struct item{
+   struct item *next;
+   int data;
+}item_t;
+
+item_t *make_item(int data){
+   item_t *temp = malloc(sizeof(item_t));
+   temp->data = data;
+   return temp;
 }
 
-int getItemQueue( struct node **head ){
-   int val = getItemLL( head, 0 );
-   rmItemLL( head, 0 );
-   return val;
-}
+void main(){
+   item_t *queue;
+   printf("Putting ten data items into the queue\n");
+   for(int i = 0; i < 10; i++){
+      printf("Pushing %d\n", i);
+      push_queue( queue, make_item(i));
+   }
 
-void addItemQueue( struct node **head, int item ){
-   addItemLL(head, getSizeLL(head), item );
+   printf("Now popping the data out...\n");
+   for(int i = 0; i < 10; i++){
+      item_t *temp = pop_queue(queue);
+      printf("Popped %d\n", temp->data);
+   }
+   
 }
