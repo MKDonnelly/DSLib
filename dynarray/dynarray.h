@@ -1,11 +1,40 @@
 #pragma once
 
-typedef struct dynarray{
-   void *array;
-   int element_size;
-   int total_elements;
-}dynarray_t;
+#define DYNARRAY_TEMPLATE(type)					\
+     struct dynarray_##type{					\
+        type *array;						\
+        int array_size; 					\
+        int len;						\
+	void (*add)(struct dynarray_##type *t, 			\
+			type item, int index); 			\
+	type (*get)(struct dynarray_##type *t,			\
+			int index);				\
+     };								\
+								\
+     void dynarray_add_##type (struct dynarray_##type *t, 	\
+				type item, int index){		\
+	if( t->array_size <= index){				\
+	   t->array_size *= 2;					\
+           t->array = realloc(t->array, 			\
+                         t->array_size * sizeof(type));		\
+	}							\
+	t->array[index] = item;					\
+	t->len++;						\
+     }								\
+     type dynarray_get_##type (struct dynarray_##type *t,	\
+				int index){			\
+	if( index < t->len )					\
+	   return t->array[index];				\
+     }								\
+     struct dynarray_##type *dynarray_create_##type (){ 	\
+        struct dynarray_##type *t = 				\
+			malloc(sizeof(struct dynarray_##type)); \
+        t->len = 0;						\
+	t->array_size = 1;					\
+	t->array = malloc(sizeof(type) * t->array_size);	\
+        t->add = dynarray_add_##type ;				\
+	t->get = dynarray_get_##type ;				\
+     }							
 
-void *dynarray_create( int start_size, int element_size );
-void dynarray_add( dynarray_t *dynarray, void *element, int index );
-void *dynarray_get_array( dynarray_t *dynarray ); 
+#define DECLARE_DYNARRAY(name, type) \
+     struct dynarray_##type *name = dynarray_create_##type (); 

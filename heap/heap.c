@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct heap{
    int *elements;
@@ -41,7 +42,6 @@ void bubble_down( heap_t *heap, int index ){
 
 int minheap_getsmallest( heap_t *heap ){
    int smallest = heap->elements[1];
-   printf("smallest: %d\n", smallest);
 
    //replace the element removed with the last
    //element and have it bubble down.
@@ -53,22 +53,24 @@ int minheap_getsmallest( heap_t *heap ){
 }
 
 int main(){
-
+   srand(time(NULL));
    heap_t *h = malloc(sizeof(heap_t));
    h->elements = malloc(sizeof(int) * 20);
    h->total_elements = 0;
 
-   for(int i = 0; i < 10; i++)
-      minheap_insert( h, i );
-
-   for(int i = 0; i < 20; i++){
-      printf("%d ", h->elements[i]);
+   printf("HeapSort Test...\n");
+   for(int i = 0; i < 10; i++){
+      int r = rand() % 100;
+      printf("%d, ", r);
+      minheap_insert( h, r );
    }
    printf("\n");
 
-   printf("%d\n", minheap_getsmallest(h));
-//   for(int i = 0; i < 10; i++)
-//      printf("%d, ", minheap_getsmallest(h));
+   printf("Now in sorted order...\n");
+   for(int i = 0; i < 10; i++){
+      printf("%d, ", minheap_getsmallest(h));
+   }
+   printf("\n");
 
    return 0;
 }

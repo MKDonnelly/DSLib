@@ -1,12 +1,10 @@
 #pragma once
 
-struct tnode{
+typedef struct tnode{
    struct tnode *right;
    struct tnode *left;
-   int val;
-};
-typedef struct tnode tnode_t;
+   void *data;
+}tnode_t;
 
-
-tnode_t *make_node(int);
-void insert_node(tnode_t**,tnode_t*);
+tnode_t *make_node(void *data);
+void insert_node(tnode_t **root, tnode_t *new_node);

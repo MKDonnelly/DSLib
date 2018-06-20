@@ -4,29 +4,24 @@
 #include "genericll.h"
 
 typedef struct{
-   int data;
    list_head_t *next;
+   int data;
 }test_t;
 
 void main(){
+   list_t *new_list = list_create( test_t, next );
 
-   list_t *t;
-   INIT_LIST( t, test_t, next );
+   test_t *first = malloc(sizeof(test_t));
+   first->data = 111;
+   test_t *second = malloc(sizeof(test_t));
+   second->data = 222;
 
-   test_t *a = malloc(sizeof(test_t));
-   a->data = 111;
-   list_add(t, a, 0);
+   list_add(new_list, first, 0 );
+   list_add(new_list, second, 1);
 
-   test_t *b = malloc(sizeof(test_t));
-   b->data = 222;
-   list_add(t, b, 0);
+   list_foreach(new_list, e){
+      test_t *element = list_ptrof(new_list, e, test_t);
+      printf("Got %d\n", element->data);
+   }
 
-
-   test_t *first = list_removeby_index( t, 0 );
-   test_t *second = list_removeby_index(t, 0);
-   printf("%d\n", first->data);
-   printf("%d\n", second->data);
 }
-
-
-

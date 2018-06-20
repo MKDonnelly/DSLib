@@ -22,9 +22,9 @@ void main(){
    int valid_str = 1;
    for(int i = 0; i < check_len && valid_str; i++){
       if( check[i] == '(' ){
-         push_stack( stack, create_item('('));
+         stack_push( stack, create_item(check[i]));
       }else if( check[i] == ')' ){
-         item_t *poped = pop_stack( stack );
+         item_t *poped = stack_pop( stack );
          if( poped == NULL ){
             valid_str = 0;
             printf("FAILED on character %d\n", i);
