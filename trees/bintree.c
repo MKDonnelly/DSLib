@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tree.h"
+#include "../stack/stack.h"
+
+typedef struct tnode{
+   struct tnode *right;
+   struct tnode *left;
+   void *data;
+}tnode_t;
 
 tnode_t *make_node(void *data){
    tnode_t *new = malloc(sizeof(tnode_t));
@@ -134,6 +141,8 @@ void print_node(tnode_t *node){
 
 void main(){
 
+
+/*
    tnode_t *root = make_node(5);
 
    for(int i = 0; i < 5; i++)
@@ -143,5 +152,5 @@ void main(){
       insert_node( &root, make_node(i));
    inorder(root);
 
-   foreach_in_tree(&root, print_node);
+   foreach_in_tree(&root, print_node);*/
 }

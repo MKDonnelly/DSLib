@@ -10,8 +10,6 @@ typedef struct{
    void **hash_array;
 }hashtable_t;
 
-
-
 void **make_hash_table(int buckets, int element_size);
 int generic_hash(char *data, int max_val);
 void insert_into_hash( hashtable_t *table, void *item);

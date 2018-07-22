@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include "genericll.h"
 
-
 typedef struct{
-   list_head_t *next;
+   list_head_t next;
    int data;
 }test_struct_t;
 
@@ -125,22 +124,18 @@ int test_len_value_get(){
 
 int test_list_foreach(){
    list_t *new_list = list_create(test_struct_t, next);
-   
-   //Add in elements numbered 0..3
+
    for(int i = 0; i < 3; i++){
       test_struct_t *t = malloc(sizeof(test_struct_t));
       t->data = i;
       list_add(new_list, t, i);
    }
 
-
-   //Loop over each element and check
    int check = 0;
    list_foreach(new_list, e){
-      test_struct_t *s = list_ptrof(new_list, e, test_struct_t);
-      if( s->data != check ){
+      test_struct_t *a = list_ptrof(new_list, e, test_struct_t);
+      if( a->data != check ){
          printf("%s: Wrong data on iter %d\n", __FUNCTION__, check);
-         printf("Expected %d, got %d\n", check, s->data);
          list_free(new_list, free);
          return 1;
       }

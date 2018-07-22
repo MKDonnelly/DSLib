@@ -70,10 +70,6 @@ int main(){
 
    fclose(files);  
 
-//   for(int i = 0; i < HASH_SIZE; i++){
-//      printf("%d ", get_size_ll(hash_array[i]));
-//   }
-///////
    char buf2[2000];
    int length2;
    FILE *files2 = fopen("files.txt", "r");
@@ -109,32 +105,3 @@ int main(){
       printf("Query took %lfs\n", time_elapsed);
    }*/
 }
-
-
-
-/*
-//Generic hashing function which can form a hash from any
-//data object. This is accomplished by treating the object
-//as a set of bytes and adding the value of each.
-int generic_hash( char *object, int size, int max_val ){
-   int acc = 0;
-   char *t = object;
-   for(int i = 0; i < size; i++){
-      acc += (char)(*t);
-      t++;
-      acc %= max_val;
-   }
-   return acc;
-}
-void remove_from_hash( int object_id, my_node *node_array[] ){
-   int node_index = 0;
-   foreach_in_ll( node_array[find_hash_of(object_id,10)], node){
-      if( node->id == object_id ){
-         printf("Removing node!\n");
-         rm_node_ll( node_array, node_index );
-         return;
-      }
-      node_index++;
-   }
-}
-*/
