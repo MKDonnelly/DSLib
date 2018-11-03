@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+//TODO merge sort with linked list
+
 //Insertion sort, done iteratively
 void insertion_sort( int *values, int size ){
    int partition_index = 1;

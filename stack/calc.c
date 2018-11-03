@@ -1,23 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../linked_list/genericll.h"
+#include "../linked_list/isingle/slist.h"
 #include "stack.h"
 #include <string.h>
 
 typedef struct{
    char *item;
-   list_head_t *next;
+   slist_head_t *next;
 }calc_element_t;
 
 #define MAX_BUF 100
-void parse_expr( list_t *list, char *solve ){
+void parse_expr( slist_t *list, char *solve ){
    char *token;
    
    token = strtok(solve, " ");
    while( token != NULL ){
       calc_element_t *new_element = malloc(sizeof(calc_element_t));
       new_element->item = token;
-      list_add(list, new_element, list_length(list) );
+      slist_append(list, new_element);
       token = strtok(NULL, " ");
    }
 }
@@ -35,38 +35,35 @@ int priority(char input){
    }
 }
 
-list_t *infix_to_postfix( list_t *tokens ){
-   list_t *stack;
-   INIT_STACK( stack, calc_element_t, next);
-   list_t *postfix_list;
-   INIT_LIST( postfix_list, calc_element_t, next);
+slist_t *infix_to_postfix( slist_t *tokens ){
+   stack_t *stack = create_stack( calc_element_t, next );
+   slist_t *postfix_list = slist_create(calc_element_t, next);
  
-   int length = list_length(tokens); 
+   int length = slist_len(tokens); 
    for(int i = 0; i < length; i++){
-      calc_element_t *token = list_removeby_index( tokens, 0 );
+      calc_element_t *token = slist_rm_index( tokens, 0 );
       if( strstr( "*/+-()", token->item) == NULL ){
-         list_add( postfix_list, token, list_length(postfix_list));
+         slist_append( postfix_list, token );
       }else if( strcmp(token->item, "(") == 0 ){
          stack_push( stack, token );
       }else if( strcmp(token->item, ")") == 0 ){
          calc_element_t *top_token = stack_pop( stack );
          while( strcmp( top_token->item, "(" ) != 0 ){
-            list_add( postfix_list, top_token, list_length(postfix_list));
+            slist_append( postfix_list, top_token );
             top_token = stack_pop( stack );
          }
       }else{
-         while( list_length( stack ) != 0 && 
+         while( slist_len( stack ) != 0 && 
                 priority( ((calc_element_t*)stack_peek(stack))->item[0] ) > 
                 priority( token->item[0] ) ){
-            list_add( postfix_list, stack_pop(stack), 
-                 list_length(postfix_list));
+            slist_append( postfix_list, stack_pop(stack));
          }
          stack_push( stack, token );
       }
    }
 
-   while( list_length(stack) != 0){
-      list_add( postfix_list, stack_pop(stack), list_length(postfix_list));
+   while( slist_len(stack) != 0){
+      slist_append( postfix_list, stack_pop(stack));
    }
 
    return postfix_list;
@@ -78,13 +75,12 @@ int is_op(char *str){
    return 0;
 }
 
-double postfix_eval(list_t *postfix_expr){
-   list_t *temp;
-   INIT_STACK(temp, calc_element_t, next);
+double postfix_eval(slist_t *postfix_expr){
+   slist_t *temp = slist_create(calc_element_t, next);
 
-   int len = list_length(postfix_expr);
+   int len = slist_len(postfix_expr);
    for(int i = 0; i < len; i++){
-      calc_element_t *item = (calc_element_t*)list_removeby_index(postfix_expr, 0);
+      calc_element_t *item = slist_rm_index(postfix_expr, 0);
       if( is_op( item->item ) ){
          calc_element_t *second_number = stack_pop(temp);
          calc_element_t *first_number = stack_pop(temp);
@@ -115,13 +111,12 @@ double postfix_eval(list_t *postfix_expr){
 
 
 void main(){
-   list_t *list;
-   INIT_LIST( list, calc_element_t, next );
+   slist_t *list = slist_create(calc_element_t, next);
    char solve[] = "1 * 2 * ( 3 / 4 )";
 
    parse_expr( list, solve );
 
-   list_t *postfix = infix_to_postfix(list);
+   slist_t *postfix = infix_to_postfix(list);
 
    printf("Result is %f\n", postfix_eval(postfix));
 }

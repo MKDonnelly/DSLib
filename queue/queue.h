@@ -1,7 +1,17 @@
 #pragma once
-#include "../linked_list/generic_ll.h"
+#include "../linked_list/single/slist.h"
 
-#define push_queue( queue, item )\
-        add_node_ll( queue, item, get_size_ll(queue))
-#define pop_queue( queue )\
-        rmi_node_ll( queue, 0 )
+typedef slist_t queue_t;
+typedef slist_head_t queue_element_t;
+
+#define create_queue(struct_type, struct_member) \
+        slist_create(struct_type, struct_member)
+
+#define enqueue_queue(queue, item)\
+        slist_append(queue, item)
+
+#define dequeue_queue(queue) \
+        slist_rm_index(queue, 0)
+
+#define len_queue(queue) \
+        slist_len(queue)

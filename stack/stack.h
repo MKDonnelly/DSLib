@@ -1,16 +1,19 @@
 #pragma once
-#include "../linked_list/genericll.h"
+#include "../linked_list/isingle/slist.h"
 
-#define stack_push( stack, element ) \
-        list_add( stack, element, 0 )
+typedef slist_t stack_t;
 
-#define stack_pop( stack ) \
-        list_rm_index( stack, 0 )
+#define stack_push(stack, element) \
+        slist_add(stack, element, 0)
 
-#define stack_peek( stack ) \
-        list_getby_index( stack, 0 )
+#define stack_pop(stack) \
+        slist_rm_index(stack, 0)
 
-#define stack_size( stack )\
-        list_size( stack )
+#define stack_peek(stack) \
+        slist_get(stack, 0)
 
-#define INIT_STACK( stack, type, member ) INIT_LIST( stack, type, member )
+#define stack_size(stack)\
+        slist_len(stack)
+
+#define create_stack(struct_type, struct_member) \
+        slist_create(struct_type, struct_member)

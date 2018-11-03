@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+//TODO Mark the end of a string in the node, else
+//     we could end up deleting a valid key!
+//TODO create a trie that can take an arbitrary
+//     piece of data as a key and store another
+//     arbitrary piece of data.
+
 //only handles lower-case letter strings
 typedef struct tnode{
    char c;

@@ -1,0 +1,170 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../linked_list/single/list.h"
+
+typedef struct{
+   slist_head_t list_member;
+   char *to;
+}edge_t;
+
+edge_t *make_edge(const char *name){
+   edge_t *new_edge = malloc(sizeof(edge_t));
+   new_edge->to = strdup(name);
+   return new_edge;
+}
+
+typedef struct{
+   //This structure will be used in
+   //two different lists. The graph
+   //entity will have a list of vertex_t's
+   //and, when searching, we will maintain
+   //a queue of vertex_t for BFS.
+   slist_head_t graph_member;
+   slist_head_t search_member;
+
+   //List of edges of type edge_t
+   slist_t *connected_to;
+
+   //used for BFS and DFS searching
+   char color;
+   int finish;
+   char *name;
+}vertex_t;
+
+void vertex_add_name(vertex_t *vertex, char *name){
+   vertex->name = name;
+}
+
+char *vertex_get_name(vertex_t *vertex){
+   return vertex->name;
+}
+
+int has_edge(vertex_t *v, const char *edge){
+   slist_t *edges = v->connected_to;
+   for(edge_t *e = slist_get(edges, 0); e != NULL; 
+                         e = slist_next(edges, e) ){
+      if( strcmp(e->to, edge) == 0)
+         return 1;
+   }
+   return 0;
+}
+
+vertex_t *make_vertex(const char *name){
+   vertex_t *new_vertex = malloc(sizeof(vertex_t));
+   new_vertex->name = strdup(name);
+   new_vertex->connected_to = slist_create(edge_t, list_member);
+   return new_vertex;
+}
+
+typedef struct{
+   //Holds a list of vertex_t's
+   slist_t *vertexes;
+   int ptr_offset;
+}graph_t;
+
+#define vertex_member(graph, node) \
+        (vertex_t*)( (char*)node + (graph)->ptr_offset )
+#define vertex_container(graph, node) \
+        (void*)( (char*)(node) - (graph)->ptr_offset )
+
+#define make_graph(struct_type, struct_member) \
+        __make_graph( __builtin_offsetof(struct_type, struct_member) )
+graph_t *__make_graph(int ptr_offset){
+   graph_t *g = malloc(sizeof(graph_t));
+   g->ptr_offset = ptr_offset;
+   g->vertexes = slist_create(vertex_t, graph_member);
+   return g;
+}
+
+#define add_vertex(graph, node) \
+        __add_vertex(graph, vertex_member(graph, node) )
+void __add_vertex(graph_t *g, vertex_t *v){
+   slist_add(g->vertexes, v, 0);
+}
+
+#define get_vertex(graph, name) \
+        vertex_container(graph, __get_vertex(graph, name))
+vertex_t *__get_vertex(graph_t *g, const char *name){
+   for(vertex_t *gnode = slist_get(g->vertexes, 0);
+       gnode != NULL; 
+       gnode = slist_next(g->vertexes, gnode) ){
+
+      if( strcmp(gnode->name, name) == 0 )
+         return gnode;
+   }
+   return NULL;
+}
+
+
+int connect_to(graph_t *g, const char *from, const char *to){
+   vertex_t *from_vertex = get_vertex(g, from);
+   if( from_vertex != NULL ){
+      slist_append(from_vertex->connected_to, make_edge(to));
+      return 0;
+   }else{
+      return 1;
+   }
+}
+
+
+//////////////////////////////Test
+
+typedef struct{
+   vertex_t graph_member;
+}nfa_node_t;
+
+nfa_node_t *make_node(char *name){
+   nfa_node_t *new_node = malloc(sizeof(nfa_node_t));
+   new_node->graph_member = make_vertex(name); 
+   return new_node;
+}
+
+void main(){
+
+   graph_t *g = make_graph(nfa_node_t, graph_member);
+   add_vertex(g, make_node("A"));
+   add_vertex(g, make_node("B"));   
+   connect_to(g, "A", "B");
+   connect_to(g, "B", "A");
+
+/*   nfa_node_t *current = get_vertex(g, "A");
+   char input[] = "BABA";
+   for(int i = 0; i < sizeof(input); i++){
+      char c[2] = {0, 0};
+      c[0] = input[i];
+      if(has_edge( vertex_member(g, current), c ) ){
+         current = get_vertex(g, c);
+         printf("At node %s\n", vertex_get_name(vertex_member(g, current)));
+      }
+   }*/
+   
+
+/*
+   dfs(g, "first");
+
+   for(vertex_t *v = slist_get(g->vertexes, 0); v != NULL; v = slist_next(g->vertexes, v)){
+      printf("%s: %d\n", v->name, v->finish);
+   }
+*/
+/*   add_vertex(g, make_vertex("first", 0));
+   add_vertex(g, make_vertex("second", 1));
+   add_vertex(g, make_vertex("third", 2));
+   add_vertex(g, make_vertex("fourth", 3));
+   add_vertex(g, make_vertex("fifth", 4));
+   add_vertex(g, make_vertex("sixth", 5));
+   add_vertex(g, make_vertex("seventh", 6));
+   add_vertex(g, make_vertex("eighth", 7));
+
+   connect_to(g, "first", "second");
+   connect_to(g, "first", "third");
+   connect_to(g, "first", "fourth");
+   connect_to(g, "second", "fifth");
+   connect_to(g, "fifth", "sixth");
+   connect_to(g, "fifth", "seventh");
+   connect_to(g, "fourth", "eighth");
+   connect_to(g, "seventh", "first");
+
+   //bfs(g, "first"); 
+   dfs(g, "first");*/
+}

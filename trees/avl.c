@@ -1,8 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
+//TODO clean up code
+//TODO move rotation code into its own file since it is the
+//       same for rb/avl trees.  Any format-specific modifications
+//       (change balance for AVL, change colors for rb) can be wrapped
+//       into a function along with the generic tree rotations. Make a
+//       generic, intrusive structure to add to each node and can be
+//       generically manipulated.
 
+//Balance factor = sizeof(right_tree) - sizeof(left_tree)
+
+#define XOR(first, second) ( !(first) != !(second) )
+
+//TODO make this generic
 typedef struct node{
-   struct node *left, *right;
+   struct node *children[2];
    int bfactor;
    int data;
 }node_t;
@@ -10,45 +22,48 @@ typedef struct node{
 node_t *make_node(int data){
    node_t *n = malloc(sizeof(node_t));
    n->data = data;
-   n->left = n->right = NULL;
+   n->children[0] = n->children[1] = NULL;
    n->bfactor = 0;
    return n;
 }
 
-int height_of(node_t *tree){
-   if( tree == NULL || (tree->left == NULL && tree->right == NULL) ){
-      return 0;
-   }else{
-      int left = tree->left == NULL ? 0 : height_of(tree->left) + 1;
-      int right = tree->right == NULL ? 0 : height_of(tree->right) + 1;
-      return left > right ? left : right;
-   }
-}
 
-/* Converts this ->>>>>>>>>  Into this
+/* Converts this ->>>>>>>>>  Into this    for dir == 1
     |first|                   |second|
          \                     /   \
         |second|          |first|  |third|
             \
            |third|
+
+  Converts this ->>>>>>>> into this        for dir == 0
+        |first|            |second|
+          /                 /   \
+     |second|           |third| |first|
+        /
+    |third|
 */
-void simple_rotate_left(node_t **tree){
-   if( (*tree)->bfactor > 1 ){
-      node_t *first = *tree;
-      node_t *second = (*tree)->right;
-      node_t *third = (*tree)->right->right;
 
-      *tree = second;
-      first->right = second->left;
-      second->left = first;
+void single_rotate(node_t **tree, int dir){
+      node_t *new_root = (*tree)->children[dir];
+      node_t *old_root = (*tree);
 
-      //update balance factors. 
-      second->bfactor -= 1;
-      first->bfactor -= 2;
-   }
+      //Move the child node under the new root to be under the
+      //old root.
+      old_root->children[dir] = new_root->children[!dir];
+
+      //move the new root to be the root of the tree. Move the
+      //old root as a child of the new root.
+      new_root->children[!dir] = old_root;
+  
+      //adjust heights
+      old_root->bfactor -= 2;
+      new_root->bfactor -= 1;
+
+      *tree = new_root;
 }
 
-/* Converts this ->>>>>>>> Into this then calls simple_rotate_left
+
+/* Converts this ->>>>>>>> Into this       for dir == 1
      |first|              |first| 
         \                    \
        |second|             |third|
@@ -56,51 +71,8 @@ void simple_rotate_left(node_t **tree){
      |third|  |sr|         |tl| |second|
        / \                        / \
      |tl| |tr|                 |tr|  |sr|
-*/
 
-
-void rotate_left(node_t **tree){
-   if( (*tree)->bfactor == 2 && (*tree)->right->bfactor == -1 ){
-      node_t *first = *tree;
-      node_t *second = (*tree)->right;
-      node_t *third = (*tree)->right->left;
-
-      first->right = third;
-      second->left = third->right;
-      third->right = second;
-
-      //update balance factor
-      second->bfactor = 0;
-      third->bfactor = 1;
-   }
-   simple_rotate_left(tree);
-}
-
-/*Converts this ->>>>>>>> into this    
-        |first|            |second|
-          /                 /   \
-     |second|           |third| |first|
-        /
-    |third|
-*/
-void simple_rotate_right(node_t **tree){
-   if( (*tree)->bfactor < -1 ){
-      node_t *first = *tree;
-      node_t *second = (*tree)->left;
-      node_t *third = (*tree)->left->left;
-
-      *tree = second;
-      first->left = second->right;
-      second->right = first;
-
-      //update balance factors. 
-      second->bfactor += 1;
-      first->bfactor += 2;
-   }
-}
-
-
-/* Converts this ->>>>>>>> Into this then calls simple_rotate_left
+   Converts this ->>>>>>>> Into this       for dir == 0
          |first|               |first| 
           /                    /
        |second|             |third|
@@ -109,106 +81,102 @@ void simple_rotate_right(node_t **tree){
               / \           / \
            |tl| |tr|     |sl|  |tl|
 */
-void rotate_right(node_t **tree){
-   if( (*tree)->bfactor == -2 && (*tree)->left->bfactor == 1 ){
-      node_t *first = *tree;
-      node_t *second = (*tree)->left;
-      node_t *third = (*tree)->left->right;
 
-      first->left = third;
-      second->right = third->left;
-      third->left = second;
+void double_rotate(node_t **tree, int dir){
+   single_rotate( &((*tree)->children[dir]), !dir );
+   single_rotate( tree, dir );
+}
 
-      //update balance factor
-      second->bfactor = 0;
-      third->bfactor = -1;
+void rebalance(node_t **tree, int dir){
+   node_t *n = (*tree)->children[dir];
+   int bal = dir == 0 ? -1 : 1;
+
+   if( n->bfactor == bal ){
+      single_rotate(tree, dir);
+   }else{
+      double_rotate(tree, dir);
    }
-   simple_rotate_right(tree);
 }
 
 
 //Returns net change in the height of the tree returned.
 int insert_avl(node_t **tree, node_t *node){
+
    if( *tree == NULL ){
       *tree = node;
+      return 1;
+   }else{
+      int dir = (*tree)->data < node->data;
+      int retval = insert_avl( &((*tree)->children[dir]), node );
 
-      //By inserting this new tree, an additional edge was added
-      //(the +1). In addition, the height changed by the height of
-      //the new tree.
-      return height_of(*tree) + 1;
-   }else if( (*tree)->data < node->data ){
-      int retval = insert_avl( &((*tree)->right), node );
+      //Still more balancing to do
+      if( retval ){
+         (*tree)->bfactor += dir == 0 ? -1 : 1;
+         if( abs( (*tree)->bfactor ) > 1 )
+            rebalance(tree, dir);
+      }
 
-      //update balance factor. the change in height
-      //is propagated back to us
-      (*tree)->bfactor += retval;
-      rotate_left(tree);
-      if( (*tree)->bfactor == 0 )
-         return 0;
-      return retval;
-   }else if( (*tree)->data > node->data ){
-      int retval = insert_avl( &((*tree)->left), node );
-
-      (*tree)->bfactor -= retval;
-      rotate_right(tree);
-      if( (*tree)->bfactor == 0)
-         return 0;
-      return retval;
+      return (*tree)->bfactor == 0 ? 0 : 1;
    }
 }
 
+
+/*
 int remove_avl(node_t **tree, int val){
+
+   //found node
    if( (*tree)->data == val ){
-      if( (*tree)->left == NULL && (*tree)->right == NULL ){
-         //no children
-         free( *tree );
-         *tree = NULL;
- 
-         //Tree is 1 shorter
-         return 1;
-      }else if( ((*tree)->left == NULL && (*tree)->right != NULL) ||
-                ((*tree)->left != NULL && (*tree)->left == NULL )){
-         //one child
+      //Case 1: Node has no children, so just delete it
+      if( (*tree)->children[0] == NULL && (*tree)->children[1] == NULL ){
          free(*tree);
-         //promote the one child to be the new root of this local tree
-         (*tree) = (*tree)->left == NULL ? (*tree)->right : (*tree)->left;
+         *tree = NULL;
+
+         //return the delta of the height 
+         return 1;
+
+      //Case 2: One child is null and the other is not.
+      }else if( XOR((*tree)->children[0], (*tree)->children[1]) ){
+         node_t *temp = (*tree);
+         (*tree) = (*tree)->children[0] == NULL ? (*tree)->children[1] :
+                                                  (*tree)->children[0];
+         free(temp);
 
          //reduced height by 1
          return 1;
+
+      //Case 3: Node to be deleted has two children. Take the right node,
+      //        promote it to root, and then insert the left subtree.
+      //        Note that we are inserting a whole tree (the left tree).
       }else{
-         //two children. Replace removed node with the right node, and
-         //then insert the left node into this tree. The left node will
-         //always go to the left most node in the right tree.
-         node_t *right = (*tree)->right;
-         node_t *left = (*tree)->left;
+         node_t *right = (*tree)->children[1];
+         node_t *left = (*tree)->children[0];
          free(*tree);
          *tree = right;
          insert_avl( tree, left );
-         
+
          //We remove a node, which means the height decreases by 1.
+         printf("Returning %d\n", height_of(*tree) - 1);
          return height_of(*tree) - 1;
       }
-   }else if( (*tree)->data < val ){
-      int retval = remove_avl( &((*tree)->right), val );
+   }else{
+      //Recursive case where the data has not been found
+      int dir = (*tree)->data < val;
+      int retval = remove_avl( &((*tree)->children[dir]), val);
 
-      (*tree)->bfactor -= retval;
-      if( (*tree)->bfactor == 0 )
-         return 0;
-      return retval;
-   }else if( (*tree)->data > val ){
-      int retval = remove_avl( &((*tree)->left), val );
+      if( dir == 1 ){
+         (*tree)->bfactor -= retval;
+      }else{
+         (*tree)->bfactor += retval;
+      }
+  
+      return (*tree)->bfactor == 0 ? 0 : retval;
+   }         
+}*/
 
-      (*tree)->bfactor += retval;
-      if( (*tree)->bfactor == 0)
-         return 0;
-      return retval;
-   }
-}
 
 void main(){
    node_t *tree = NULL;
-
-   for(int i = 0; i < 10; i++){
+   for(int i = 0; i < 7; i++){
       insert_avl(&tree, make_node(i));
    }
 }
