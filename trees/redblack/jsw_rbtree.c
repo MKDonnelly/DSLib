@@ -286,8 +286,8 @@ void main(){
    jsw_insert(&tree, 12);
    jsw_insert(&tree, 13);
 
-   jsw_remove_top(&tree, 13);
-   jsw_remove_top(&tree, 11);
+   jsw_remove(&tree, 13);
+   jsw_remove(&tree, 11);
 
    printf("%d\n", jsw_rb_assert(tree.root));
 }

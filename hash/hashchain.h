@@ -5,7 +5,7 @@
 //TODO instead of a string key, have a generic key that
 //     can refer to any series of bytes.
 typedef struct{
-   slist_head_t list_member;
+   single_intrusive_member(list_member);
    char *key;
 }hash_entry_t;
 
@@ -50,9 +50,9 @@ typedef struct htable{
 
 #define hash_member(element, htable) \
         (hash_entry_t*)((char*)element + (htable)->entry_offset)
+
 #define assoc_key(htable, element, key) \
         __assoc_key(hash_member(element, htable), key)
-
 void __assoc_key(hash_entry_t *entry, const char *key);
 
 //Creates a generic hash table. By setting maxload to INT_MAX and

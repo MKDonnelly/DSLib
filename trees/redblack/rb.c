@@ -68,7 +68,7 @@ void single_rotate(rb_node_t **tree, int child){
 
        |A|            |A|              |D|
        / \            / \              / \
-     (B)  |C|       (D) |C|          (B)  (A)
+    (B)  |C|       (D) |C|          (B)  (A)
        \            / \               \   /  \
        (D)        (B)  {F}           {E} {F} |C|
        /  \         \
@@ -96,6 +96,30 @@ void double_rotate(rb_node_t **tree, int child){
 }
 
 
+//As we walk up the tree, this handles any rotations
+//needed to rebalance.
+void adjust_tree(rb_node_t **root, int dir){
+   if( is_red( (*root)->children[dir] ) ){
+      //Case 1: current node is black, with two children red
+      if( is_red( (*root)->children[!dir] ) ){
+         (*root)->red = 1;
+         (*root)->children[0]->red = (*root)->children[1]->red = 0;
+
+      //Case 2: Child is red and grandchild on same side is red.
+      //        Fix using a single rotation around the opposite way
+      //        (e.g. there are two consecutive red nodes on the left,
+      //        rotate to the left to balance it out)
+      }else if( is_red( (*root)->children[dir]->children[dir] ) ){
+         single_rotate( root, dir );
+    
+      //Case 3: Child is red and the grandchild on the other side is red
+      //        Fix using a double rotation towards the other way.
+      }else if( is_red( (*root)->children[dir]->children[!dir] ) ){
+         double_rotate( root, dir );
+      }
+   }
+}
+
 void __rb_insert(rb_node_t **root, int data){
    if( (*root) == NULL ){
       (*root) = make_node(data);
@@ -103,25 +127,7 @@ void __rb_insert(rb_node_t **root, int data){
       int dir = (*root)->data < data;
       __rb_insert(&((*root)->children[dir]), data);
 
-      if( is_red( (*root)->children[dir] ) ){
-         //Case 1: current node is black, with two children red
-         if( is_red( (*root)->children[!dir] ) ){
-            (*root)->red = 1;
-            (*root)->children[0] = (*root)->children[1] = 0;
-
-         //Case 2: Child is red and grandchild on same side is red.
-         //        Fix using a single rotation around the opposite way
-         //        (e.g. there are two consecutive red nodes on the left,
-         //        rotate to the left to balance it out)
-         }else if( is_red( (*root)->children[dir]->children[dir] ) ){
-            single_rotate( root, dir );
-
-         //Case 3: Child is red and the grandchild on the other side is red
-         //        Fix using a double rotation towards the other way.
-         }else if( is_red( (*root)->children[dir]->children[!dir] ) ){
-            double_rotate( root, dir );
-         }
-      }
+      adjust_tree(root, dir);
    }
 }
 
@@ -132,23 +138,24 @@ void rb_insert(rb_tree_t *tree, int data){
    tree->root->red = 0;
 }
 
-/*void __rb_remove(rb_node_t *tree, int data){
-   if( tree == NULL ){
-      //Data not found
-      return;
-   }else if( tree->data == data ){
-      //remove node
-      return;
-   }else{
-      int dir = tree->data < data;
-      __rb_remove( tree->children[dir], data );
 
-      if( 
 
-   }
-}*/
+void main(){
+   rb_tree_t *root = make_tree();
 
-//0 = Removed node was red, so we do not need rebalancing
+   for(int i = 0; i < 8; i++)
+      rb_insert(root, i);
+
+//   for(int i = 0; i < 8; i++)
+//      rb_remove(root, i);
+
+   //rb_remove(root, 15);
+   //rb_remove(root, 1);
+}
+
+
+
+/*//0 = Removed node was red, so we do not need rebalancing
 //1 = Node to remove is black. Leave it and rebalance to
 //    change it to red.
 int __rb_remove(rb_node_t **root, int data){
@@ -218,13 +225,4 @@ void rb_remove(rb_tree_t *tree, int data){
    __rb_remove(&(tree->root), data);
    tree->root->red = 0;
 }
-
-void main(){
-   rb_tree_t *root = make_tree();
-
-   for(int i = 0; i < 3; i++)
-      rb_insert(root, i);
-
-   rb_remove(root, 0);
-   rb_remove(root, 1);
-}
+*/

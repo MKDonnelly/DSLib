@@ -15,7 +15,7 @@ test_t *create_entry(int data){
 }
 
 void main(){
-   htable_t *table = ghash_create(100, 100, 50, test_t, hash_entry);
+   htable_t *table = ghash_create(100, 100000, 0, test_t, hash_entry);
    char key[] = "a";
    for(int i = 0; i < 26; i++){
       test_t *entry = create_entry(i);

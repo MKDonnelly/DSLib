@@ -1,8 +1,7 @@
 #pragma once
-#include "../linked_list/single/slist.h"
+#include "../linked_list/list.h"
 
-typedef slist_t queue_t;
-typedef slist_head_t queue_element_t;
+typedef list_t queue_t;
 
 #define create_queue(struct_type, struct_member) \
         slist_create(struct_type, struct_member)
